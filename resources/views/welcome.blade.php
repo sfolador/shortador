@@ -85,6 +85,7 @@
                 </div>
 
                 <div class="links">
+                    <a href="view-source:http://next.meritocracy.is/it/moleskine/sales-support-intern-553?__ats=1">Test</a>
                     <a href="https://laravel.com/docs">Docs</a>
                     <a href="https://laracasts.com">Laracasts</a>
                     <a href="https://laravel-news.com">News</a>

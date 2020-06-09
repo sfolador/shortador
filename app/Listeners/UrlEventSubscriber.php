@@ -24,10 +24,11 @@ class UrlEventSubscriber
      * @param UrlEventInterface $event
      * @param $type
      */
-    protected function createEventWithType(UrlEventInterface $event, $type)
+    protected function createEventWithType(UrlEventInterface $event, $type): void
     {
         $e = new Event();
         $e->url()->associate($event->getUrl());
+        /** @noinspection PhpUndefinedFieldInspection */
         $e->event_type = $type;
         $e->save();
     }
@@ -35,7 +36,7 @@ class UrlEventSubscriber
     /**
      * @param UrlCreatedEvent $event
      */
-    public function onUrlCreatedEvent(UrlCreatedEvent $event)
+    public function onUrlCreatedEvent(UrlCreatedEvent $event): void
     {
         $this->createEventWithType($event, EventTypeEnum::created());
     }
@@ -43,12 +44,16 @@ class UrlEventSubscriber
     /**
      * @param UrlOpenedEvent $event
      */
-    public function onUrlOpenedEvent(UrlOpenedEvent $event)
+    public function onUrlOpenedEvent(UrlOpenedEvent $event): void
     {
+
         $this->createEventWithType($event, EventTypeEnum::opened());
 
         $increment = 1;
         $url = $event->getUrl();
+        \Log::info("on url opened event" . $url->id);
+        /** @noinspection PhpUndefinedMethodInspection */
+        /** @noinspection PhpUndefinedFieldInspection */
         $stat = Stat::urlIs($url->id)->first();
         if (!$stat) {
             $stat = new Stat();
@@ -63,7 +68,7 @@ class UrlEventSubscriber
     /**
      * @param UrlDeletedEvent $event
      */
-    public function onUrlDeletedEvent(UrlDeletedEvent $event)
+    public function onUrlDeletedEvent(UrlDeletedEvent $event): void
     {
         $this->createEventWithType($event, EventTypeEnum::deleted());
     }
@@ -74,7 +79,7 @@ class UrlEventSubscriber
      *
      * @param Dispatcher $events
      */
-    public function subscribe($events)
+    public function subscribe($events): void
     {
         $events->listen(
             UrlCreatedEvent::class,
