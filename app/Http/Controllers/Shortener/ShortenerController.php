@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Url\Url;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,32 +21,35 @@ use Illuminate\Http\Response;
 class ShortenerController extends Controller
 {
     /**
+     *
+     * Opens the unfurled Url (redirects the user to the original Url)
+     *
      * @param Request $request
      * @param $hashedId
-     * @return Application|ResponseFactory|RedirectResponse|Response
+     * @return Application|ResponseFactory|JsonResponse|RedirectResponse|Response
      */
     public function show(Request $request, $hashedId)
     {
         $v = \Validator::make(
             ['hashedId' => $hashedId],
             [
-                'hashedId' => 'required|alpha_num'
+                'hashedId' => 'required|alpha_num|exists:urls,shortened'
             ]
         );
 
         if ($v->fails()) {
-            return response('', 404);
+            abort(400,"The Hash Id is invalid");
         }
 
 
         $url = \Shortener::load($hashedId);
 
-
         if (!$url) {
-            return response('', 404);
+             abort(404);
         }
 
         /** @noinspection PhpParamsInspection */
+        // triggers an Event, in order to store it
         event(new UrlOpenedEvent($url));
 
         return redirect()->away($url->getUnfurledUrl());

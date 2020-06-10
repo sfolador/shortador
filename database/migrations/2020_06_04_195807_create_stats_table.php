@@ -18,7 +18,7 @@ class CreateStatsTable extends Migration
             $table->unsignedBigInteger('url_id')->nullable(false);
             $table->unsignedBigInteger('opens')->default(0);
             $table->timestamps();
-            $table->foreign('url_id')->references('id')->on('urls');
+            $table->foreign('url_id')->references('id')->on('urls')->onDelete('CASCADE');
         });
     }
 

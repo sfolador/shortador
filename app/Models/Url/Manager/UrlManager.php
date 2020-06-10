@@ -55,21 +55,19 @@ class UrlManager
      */
     public function shorten($plainUrl): Url
     {
+        $alreadyInDB = Url::where('url', $plainUrl)->first();
+        $url = $alreadyInDB;
 
-        $alreadyInDB = Url::where('url',$plainUrl)->first();
-
-        if (!$alreadyInDB){
+        if (!$alreadyInDB) {
             $url = new Url();
             $url->url = $plainUrl;
             $url->shortened = "-";
             $url->save();
 
+            //in order to get a sequential ID (unique by default since it's an autoincrement field assigned by the DB), we need to first save the url (to retrieve the id) and to save it again.
             $url->shortened = $this->generateRandomString($url->id);
             $url->save();
-        }else{
-            $url = $alreadyInDB;
         }
-
 
 
         $cacheKey = $this->cacheKeyForShortenedUrl($url->shortened);
@@ -79,6 +77,8 @@ class UrlManager
     }
 
     /**
+     * Deletes a single Url from the cache and DB.
+     *
      * @param Url $url
      * @return Url
      */
@@ -90,6 +90,9 @@ class UrlManager
     }
 
     /**
+     *
+     * Generates a Hashid based on the given id
+     *
      * @param $id
      * @return string
      */
@@ -100,6 +103,8 @@ class UrlManager
     }
 
     /**
+     * Loads a Url from Cache or DB
+     *
      * @param $shortenedUrl
      * @return Url|null
      */
@@ -109,6 +114,8 @@ class UrlManager
     }
 
     /**
+     * Generated a cache key based on the shortened url, to be used to save and retrieve the shortened Url data in cache
+     *
      * @param $shortened
      * @return string
      */
@@ -118,6 +125,7 @@ class UrlManager
     }
 
     /**
+     * Generates a cache key based on the shortened url, to be used to save and retrieve Stats in cache.
      * @param $shortened
      * @return string
      */
@@ -127,6 +135,8 @@ class UrlManager
     }
 
     /**
+     * Loads a shortened Url from the cache or DB
+     *
      * @param $shortenedUrl
      * @return Url|null
      */
@@ -150,6 +160,8 @@ class UrlManager
 
 
     /**
+     * Removes a shortened Url from the cache and from the DB
+     *
      * @param $shortenedUrl
      * @return void
      */
@@ -181,7 +193,19 @@ class UrlManager
         }
         /** @noinspection PhpUndefinedMethodInspection */
         $stat = Stat::shortenedUrlIs($shortened)->with('url')->first();
+
+        if (!$stat) {
+            //create a new model, because there is no stat model saved in the DB (i.e. it's the first time
+            // that Stats are requested for a particular Url
+            $stat = new Stat();
+            $stat->url = Url::where('shortened', $shortened)->first();
+            $stat->opens = 0;
+            $stat->save();
+        }
+
+        //store stats in cache
         Cache::put($cacheKey, $stat, $this->durationForStats);
+
 
         return $stat;
     }

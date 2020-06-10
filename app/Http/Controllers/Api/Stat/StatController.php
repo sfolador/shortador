@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Api\Stat;
 
 
@@ -8,6 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\StatResource;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * Class StatController
+ * @package App\Http\Controllers\Api\Stat
+ */
 class StatController extends Controller
 {
     /**
@@ -19,7 +22,7 @@ class StatController extends Controller
         $v = \Validator::make(
             ['hashedId' => $hashedId],
             [
-                'hashedId' => 'required|alpha_num'
+                'hashedId' => 'required|alpha_num|exists:urls,shortened'
             ]
         );
 

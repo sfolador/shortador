@@ -43,26 +43,36 @@ class UrlEventSubscriber
 
     /**
      * @param UrlOpenedEvent $event
+     * @return bool
      */
-    public function onUrlOpenedEvent(UrlOpenedEvent $event): void
+    public function onUrlOpenedEvent(UrlOpenedEvent $event): bool
     {
 
         $this->createEventWithType($event, EventTypeEnum::opened());
 
         $increment = 1;
         $url = $event->getUrl();
-        \Log::info("on url opened event" . $url->id);
-        /** @noinspection PhpUndefinedMethodInspection */
-        /** @noinspection PhpUndefinedFieldInspection */
-        $stat = Stat::urlIs($url->id)->first();
-        if (!$stat) {
-            $stat = new Stat();
-            $stat->url()->associate($url);
-            $stat->opens = 0;
-        }
+       // \Log::info("on url opened event" . $url->id);
+        \DB::beginTransaction();
+        try {
+            /** @noinspection PhpUndefinedMethodInspection */
+            /** @noinspection PhpUndefinedFieldInspection */
+            $stat = Stat::urlIs($url->id)->first();
+            if (!$stat) {
+                $stat = new Stat();
+                $stat->url()->associate($url);
+                $stat->opens = 0;
+            }
 
-        $stat->opens += $increment;
-        $stat->save();
+            $stat->opens += $increment;
+            $stat->save();
+        }catch (\Exception $e)
+        {
+            \DB::rollBack();
+            return false;
+        }
+        \DB::commit();
+        return true;
     }
 
     /**

@@ -6,10 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UrlResource;
 use Illuminate\Http\Request;
 
+/**
+ * Class ShortenerApiController
+ * @package App\Http\Controllers\Api\Shortener
+ */
 class ShortenerApiController extends Controller
 {
 
 
+    /**
+     * Stores a new shortened URL
+     *
+     * @param Request $request
+     * @return UrlResource|\Illuminate\Http\JsonResponse
+     */
     public function create(Request $request)
     {
         $validator = \Validator::make(
@@ -19,8 +29,8 @@ class ShortenerApiController extends Controller
             ]
         );
 
-        if ($validator->failed()) {
-            return response()->json($validator->failed(), 400);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
         }
 
         $plainUrl = $request->get('url');
@@ -31,44 +41,56 @@ class ShortenerApiController extends Controller
     }
 
 
+    /**
+     *
+     * Shows the original URL related to the shortened URL.
+     *
+     * @param Request $request
+     * @param $hashedId
+     * @return UrlResource|\Illuminate\Http\JsonResponse
+     */
     public function show(Request $request, $hashedId)
     {
         $v = \Validator::make(
             ['hashedId' => $hashedId],
             [
-                'hashedId' => 'required|alpha_num'
+                'hashedId' => 'required|alpha_num|exists:urls,shortened'
             ]
         );
 
         if ($v->fails()) {
-            return response()->json($v->failed(), 400);
+            return response()->json(['errors' => $v->errors()], 400);
         }
 
         $url = \Shortener::load($hashedId);
+
         return new UrlResource($url);
     }
 
 
+    /**
+     *
+     * Deletes a shortened URL
+     *
+     * @param Request $request
+     * @param $hashedId
+     * @return UrlResource|\Illuminate\Http\JsonResponse
+     */
     public function delete(Request $request, $hashedId)
     {
         $v = \Validator::make(
             ['hashedId' => $hashedId],
             [
-                'hashedId' => 'required|alpha_num'
+                'hashedId' => 'required|alpha_num|exists:urls,shortened'
             ]
         );
 
         if ($v->fails()) {
-            return response()->json($v->getMessageBag()->getMessages(), 400);
+            return response()->json(['errors' => $v->errors()], 400);
         }
 
         $url = \Shortener::load($hashedId);
-        if ($url) {
-            \Shortener::delete($url);
-        } else {
-            return response()->json([], 404);
-        }
-
+        \Shortener::delete($url);
 
         return new UrlResource($url);
     }
