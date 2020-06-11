@@ -102,7 +102,9 @@ class UrlManagerTest extends TestCase
         $this->secondarySetup();
         $url = \Shortener::load($this->url->getShortenedString());
 
-        $this->assertSame($url, $this->url);
+        $this->assertSame($url->id, $this->url->id);
+        $this->assertSame($url->url, $this->url->url);
+        $this->assertSame($url->shortened, $this->url->shortened);
     }
 
     /**
