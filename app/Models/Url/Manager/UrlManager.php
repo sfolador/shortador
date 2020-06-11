@@ -8,6 +8,7 @@ use App\Events\UrlDeletedEvent;
 use App\Models\Stat\Stat;
 use App\Models\Url\Url;
 use Cache;
+use Composer\Package\Package;
 use Hashids;
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
@@ -197,8 +198,12 @@ class UrlManager
         if (!$stat) {
             //create a new model, because there is no stat model saved in the DB (i.e. it's the first time
             // that Stats are requested for a particular Url
+            $url = Url::where('shortened', $shortened)->first();
+            if (!$url){
+                return null;
+            }
             $stat = new Stat();
-            $stat->url = Url::where('shortened', $shortened)->first();
+            $stat->url_id = $url->id;
             $stat->opens = 0;
             $stat->save();
         }

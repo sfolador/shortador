@@ -38,14 +38,14 @@ class ShortenerController extends Controller
         );
 
         if ($v->fails()) {
-            abort(400,"The Hash Id is invalid");
+            return response(view('errors.404', ['message' => "The Hash Id is invalid"]), 404);
         }
 
 
         $url = \Shortener::load($hashedId);
 
         if (!$url) {
-             abort(404);
+            return response(view('errors.404', ['message' => "The Hash Id is invalid"]), 404);
         }
 
         /** @noinspection PhpParamsInspection */

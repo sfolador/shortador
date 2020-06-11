@@ -3,7 +3,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 7.14.1 on 2020-06-04 22:28:13.
+ * Generated for Laravel 7.14.1 on 2020-06-11 21:44:01.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -15445,6 +15445,9 @@ namespace App\Models\Url\Manager {
         /**
          * 
          *
+         * @param $plainUrl
+         * @return \Url 
+         * @noinspection PhpUndefinedFieldInspection
          * @static 
          */ 
         public static function shorten($plainUrl)
@@ -15454,8 +15457,10 @@ namespace App\Models\Url\Manager {
         }
         
         /**
-         * 
+         * Deletes a single Url from the cache and DB.
          *
+         * @param \Url $url
+         * @return \Url 
          * @static 
          */ 
         public static function delete($url)
@@ -15465,7 +15470,7 @@ namespace App\Models\Url\Manager {
         }
         
         /**
-         * 
+         * Loads a Url from Cache or DB
          *
          * @param $shortenedUrl
          * @return \Url|null 
@@ -15478,7 +15483,7 @@ namespace App\Models\Url\Manager {
         }
         
         /**
-         * 
+         * Generated a cache key based on the shortened url, to be used to save and retrieve the shortened Url data in cache
          *
          * @param $shortened
          * @return string 
@@ -15488,6 +15493,19 @@ namespace App\Models\Url\Manager {
         {
                         /** @var \App\Models\Url\Manager\UrlManager $instance */
                         return $instance->cacheKeyForShortenedUrl($shortened);
+        }
+        
+        /**
+         * Generates a cache key based on the shortened url, to be used to save and retrieve Stats in cache.
+         *
+         * @param $shortened
+         * @return string 
+         * @static 
+         */ 
+        public static function cacheKeyStatsForShortenedUrl($shortened)
+        {
+                        /** @var \App\Models\Url\Manager\UrlManager $instance */
+                        return $instance->cacheKeyStatsForShortenedUrl($shortened);
         }
         
         /**
